@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "aioshlink-py"
+version = "1.0.0"
+description = ""
+authors = ["zevaryx <zevaryx@gmail.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+attrs = "^21.4.0"
+aiohttp = "^3.8.1"
+
+[tool.poetry.dev-dependencies]
+pytest = "^7.1.0"
+python-lsp-server = {extras = ["all"], version = "^1.4.0"}
+black = "^22.1.0"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
