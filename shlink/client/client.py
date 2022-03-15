@@ -2,7 +2,7 @@ from typing import Optional
 
 from aiohttp import ClientSession
 
-from shlink import __version__
+from shlink.client.const import __version__
 from shlink.client.error import ShlinkError
 from shlink.client.http.domain import Domain
 from shlink.client.http.health import Health
@@ -25,8 +25,7 @@ class Shlink(Domain, Health, Integration, ShortURLs, Tags, Visits):
             "X-Api-Key": self.api_key,
             "User-Agent": f"shlink-py/{__version__}",
         }
-        self._session = ClientSession()
-        self._session.headers = headers
+        self._session = ClientSession(headers=headers)
 
     def __del__(self):
         self._session.close()
@@ -56,7 +55,7 @@ class Shlink(Domain, Health, Integration, ShortURLs, Tags, Visits):
 
         endpoint = self.api_url + endpoint
         response = await self._session.request(method=method, url=endpoint, data=data, params=params)
-        if not (200 <= response.status_code < 400):
+        if not (200 <= response.status < 400):
             raise ShlinkError(data=await response.json())
 
         try:
