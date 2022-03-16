@@ -10,8 +10,8 @@ class Visits:
         """
         Get general visits stats not linked to one specific short URL.
         """
-        data = await self._request(endpoint="/visits", method="GET")
-        return GenericVisits.from_dict(data)
+        data = await self.request(endpoint="/visits", method="GET")
+        return GenericVisits.from_dict(data, self._client)
 
     async def get_orphan_visits(
         self,
@@ -38,8 +38,10 @@ class Visits:
             if key != "self" and value:
                 payload[key] = value
 
-        data = await self._request(endpoint="/visits/orphan", method="GET", data=dumps(payload))
-        return VisitsView.from_dict(data)
+        data = await self.request(
+            endpoint="/visits/orphan", method="GET", data=dumps(payload)
+        )
+        return VisitsView.from_dict(data, self._client)
 
     async def get_nonorphan_visits(
         self,
@@ -66,5 +68,7 @@ class Visits:
             if key != "self" and value:
                 payload[key] = value
 
-        data = await self._request(endpoint="/visits/non-orphan", method="GET", data=dumps(payload))
-        return VisitsView.from_dict(data)
+        data = await self.request(
+            endpoint="/visits/non-orphan", method="GET", data=dumps(payload)
+        )
+        return VisitsView.from_dict(data, self._client)

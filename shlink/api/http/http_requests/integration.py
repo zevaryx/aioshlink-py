@@ -8,5 +8,5 @@ class Integration:
 
         https://mercure.rocks/
         """
-        data = await self._request(endpoint="/mercure-info", method="GET")
-        return Integration.from_dict(data)
+        data = await self.request(endpoint="/mercure-info", method="GET")
+        return Integration.from_dict(data, self._client)

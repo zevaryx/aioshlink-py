@@ -22,8 +22,8 @@ class Tags:
             itemsPerPage: The amount of items to return on every page. Defaults to all items
             searchTerm: A query used to filter results by searching for it on the tag name
         """
-        data = await self._request(endpoint="/tags", method="GET")
-        return TagsView.from_dict(data)
+        data = await self.request(endpoint="/tags", method="GET")
+        return TagsView.from_dict(data, self._client)
 
     async def edit_tag(self, oldName: str, newName: str) -> None:
         """
@@ -34,7 +34,7 @@ class Tags:
             newName: New name of the tag
         """
         payload = {"oldName": oldName, "newName": newName}
-        return await self._request(endpoint="/tags", method="PATCH", data=dumps(payload))
+        return await self.request(endpoint="/tags", method="PATCH", data=dumps(payload))
 
     async def delete_tag(self, tags: List[str]) -> None:
         """
@@ -44,7 +44,9 @@ class Tags:
             tags: The names of the tags to delete
         """
         payload = {"tags": tags}
-        return await self._request(endpoint="/tags", method="DELETE", data=dumps(payload))
+        return await self.request(
+            endpoint="/tags", method="DELETE", data=dumps(payload)
+        )
 
     async def tag_stats(
         self,
@@ -68,8 +70,8 @@ class Tags:
             "searchTerm": searchTerm,
             "orderBy": orderBy,
         }
-        data = await self._request(endpoint="/tags/stats", method="GET", params=payload)
-        return TagStatsView.from_dict(data)
+        data = await self.request(endpoint="/tags/stats", method="GET", params=payload)
+        return TagStatsView.from_dict(data, self._client)
 
     async def tag_visits(
         self,
@@ -97,5 +99,7 @@ class Tags:
             if key not in ["self", "tag"] and value:
                 payload[key] = value
 
-        data = await self._request(endpoint=f"/tags/{tag}/visits", method="GET", params=payload)
-        return VisitsView.from_dict(data)
+        data = await self.request(
+            endpoint=f"/tags/{tag}/visits", method="GET", params=payload
+        )
+        return VisitsView.from_dict(data, self._client)

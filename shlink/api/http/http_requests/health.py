@@ -6,6 +6,6 @@ class Health:
         """
         Checks the healthiness of the service, making sure it can access required resources.
         """
-        resp = await self._session.get(self.url + "rest/health")
+        resp = await self.__session.get("/rest/health")
         data = await resp.json()
-        return Status.from_dict(data)
+        return Status.from_dict(data, self._client)

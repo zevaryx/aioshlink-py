@@ -1,64 +1,13 @@
-from typing import Optional
-
-from aiohttp import ClientSession
-
-from shlink.client.const import __version__
-from shlink.client.error import ShlinkError
-from shlink.client.http.domain import Domain
-from shlink.client.http.health import Health
-from shlink.client.http.integration import Integration
-from shlink.client.http.short_urls import ShortURLs
-from shlink.client.http.tags import Tags
-from shlink.client.http.visits import Visits
+from shlink.api.http.http_client import HTTPClient
+from shlink.models.short import ShortUrlsView
 
 
-class Shlink(Domain, Health, Integration, ShortURLs, Tags, Visits):
+class Shlink:
     def __init__(self, url: str, api_key: str):
-        self.url = url
-        if self.url[-1] != "/":
-            self.url = self.url + "/"
-        self.api_url = self.url + "rest/v2"
-        self.api_key = api_key
+        self.http = HTTPClient(api_key=api_key, url=url, client=self)
 
-        headers = {
-            "Accept": "application/problem+json",
-            "X-Api-Key": self.api_key,
-            "User-Agent": f"shlink-py/{__version__}",
-        }
-        self._session = ClientSession(headers=headers)
-
-    def __del__(self):
-        self._session.close()
-
-    async def _request(
-        self, endpoint: str, data: Optional[dict] = None, params: Optional[dict] = None, method: str = "GET"
-    ) -> Optional[dict]:
+    async def fetch_short_urls(self) -> ShortUrlsView:
         """
-        Make an API request
-
-        Args:
-            endpoint: Endpoint to request
-            data: Optional data payload
-            method: Request type, oneof DELETE, GET, PATCH, POST, PUT
-
-        Return:
-            Response or None if there's no API response
-
-        Raises:
-            ValueError with incorrect request types and data mismatches
-            ShlinkError with `ShlinkError.data` being the error object
+        Fetch all short URLs.
         """
-        if method not in ["DELETE", "GET", "PATCH", "POST", "PUT"]:
-            raise ValueError("Invalid request type")
-        if method in ["PATCH", "POST", "PUT"] and not data:
-            raise ValueError("Data required for this request type")
-
-        endpoint = self.api_url + endpoint
-        response = await self._session.request(method=method, url=endpoint, data=data, params=params)
-        if not (200 <= response.status < 400):
-            raise ShlinkError(data=await response.json())
-
-        try:
-            return await response.json()
-        except Exception:  # The endpoint doesn't return JSON
-            return None
+        return await self.http.get_short_urls()

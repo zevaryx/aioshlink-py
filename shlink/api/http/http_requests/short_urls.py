@@ -42,8 +42,10 @@ class ShortURLs:
             endDate = endDate.isoformat()
         payload = locals()
         del payload["self"]
-        data = await self._request(endpoint="/short-urls", method="GET", data=dumps(payload))
-        return ShortUrlsView.from_dict(data)
+        data = await self.request(
+            endpoint="/short-urls", method="GET", data=dumps(payload)
+        )
+        return ShortUrlsView.from_dict(data, self._client)
 
     async def create_short_url(
         self,
@@ -89,8 +91,8 @@ class ShortURLs:
         """
         payload = locals()
         del payload["self"]
-        data = await self._request(endpoint="/short-urls", method="POST", params=payload)
-        return ShortURL.from_dict(data)
+        data = await self.request(endpoint="/short-urls", method="POST", params=payload)
+        return ShortURL.from_dict(data, self._client)
 
     async def shorten(self, longUrl: str) -> ShortURL:
         """
@@ -100,10 +102,10 @@ class ShortURLs:
             longURL: The long URL that this Short URL will redirect to
         """
         payload = {"apiKey": self.api_key, "longUrl": longUrl}
-        data = await self._request(
+        data = await self.request(
             endpoint="/short-urls/shorten", method="GET", params=payload
         )
-        return ShortURL.from_dict(data)
+        return ShortURL.from_dict(data, self._client)
 
     async def get_short_url(self, shortCode: str) -> ShortURL:
         """
@@ -112,8 +114,8 @@ class ShortURLs:
         Args:
             shortCode: The short code to resolve
         """
-        data = await self._request(endpoint=f"/short-urls/{shortCode}", method="GET")
-        return ShortURL.from_dict(data)
+        data = await self.request(endpoint=f"/short-urls/{shortCode}", method="GET")
+        return ShortURL.from_dict(data, self._client)
 
     async def delete_short_url(self, shortCode: str) -> None:
         """
@@ -122,13 +124,13 @@ class ShortURLs:
         Args:
             shortCode: The short code to resolve
         """
-        data = await self._request(endpoint=f"/short-urls/{shortCode}", method="DELETE")
+        data = await self.request(endpoint=f"/short-urls/{shortCode}", method="DELETE")
         return data
 
     async def edit_short_url(
         self,
         shortCode: str,
-        longUrl: Optional[str],
+        longUrl: Optional[str] = MISSING,
         validSince: Optional[datetime] = MISSING,
         validUntil: Optional[datetime] = MISSING,
         maxVisits: Optional[int] = MISSING,
@@ -162,10 +164,10 @@ class ShortURLs:
         for key, value in data.items():
             if key not in ["self", "shortCode"] and value is not MISSING:
                 payload[key] = value
-        data = await self._request(
+        data = await self.request(
             endpoint=f"/short-urls/{shortCode}", method="PATCH", data=dumps(payload)
         )
-        return ShortURL.from_dict(data)
+        return ShortURL.from_dict(data, self._client)
 
     async def get_code_visits(
         self,
@@ -195,7 +197,9 @@ class ShortURLs:
             if key not in ["self", "shortCode"] and value is not MISSING:
                 payload[key] = value
 
-        data = await self._request(
-            endpoint=f"/short-urls/{shortCode}/visits", method="GET", data=dumps(payload)
+        data = await self.request(
+            endpoint=f"/short-urls/{shortCode}/visits",
+            method="GET",
+            data=dumps(payload),
         )
-        return VisitsView.from_dict(data)
+        return VisitsView.from_dict(data, self._client)

@@ -13,8 +13,8 @@ class Domain:
         It also includes the domain redirects, plus the default redirects that will be used for any
         non-explicitly-configured one.
         """
-        data = await self._request(endpoint="/domains", method="GET")
-        return DomainsView.from_dict(data)
+        data = await self.request(endpoint="/domains", method="GET")
+        return DomainsView.from_dict(data, self._client)
 
     async def patch_domain(
         self,
@@ -39,7 +39,7 @@ class Domain:
         for key, value in data.items():
             if key not in ["self", "shortCode"] and value is not MISSING:
                 payload[key] = value
-        data = await self._request(
+        data = await self.request(
             endpoint="/domains/redirects", method="PATCH", data=dumps(payload)
         )
-        return Redirect.from_dict(data)
+        return Redirect.from_dict(data, self._client)

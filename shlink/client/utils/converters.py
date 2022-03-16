@@ -21,6 +21,7 @@ def timestamp_converter(timestamp: int | str | datetime) -> typing.Optional[date
     if isinstance(timestamp, (int, float)):
         return datetime.fromtimestamp(timestamp)
 
+
 # Credit dis-snek/Lepton
 
 
@@ -56,8 +57,12 @@ def optional(converter: typing.Callable) -> typing.Any:
     if sig:
         params = list(sig.parameters.values())
         if params and params[0].annotation is not inspect.Parameter.empty:
-            optional_converter.__annotations__["val"] = typing.Optional[params[0].annotation]
+            optional_converter.__annotations__["val"] = typing.Optional[
+                params[0].annotation
+            ]
         if sig.return_annotation is not inspect.Signature.empty:
-            optional_converter.__annotations__["return"] = typing.Optional[sig.return_annotation]
+            optional_converter.__annotations__["return"] = typing.Optional[
+                sig.return_annotation
+            ]
 
     return optional_converter
